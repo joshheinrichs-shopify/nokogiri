@@ -893,7 +893,10 @@ else
     )
   end
 
+  puts "path: #{ENV["PATH"]}"
   libxml2_recipe = process_recipe("libxml2", dependencies["libxml2"]["version"], static_p, cross_build_p) do |recipe|
+    puts "cc: #{ENV["CC"]} path: #{ENV["PATH"]}"
+
     source_dir = arg_config("--with-xml2-source-dir")
     if source_dir
       recipe.source_directory = source_dir
@@ -928,7 +931,10 @@ else
     end
 
     if darwin? && !cross_build_p
-      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+      recipe.configure_options += [
+        "RANLIB=#{ENV.fetch("RANLIB", "/usr/bin/ranlib")}",
+        "AR=#{ENV.fetch("AR", "/usr/bin/ar")}",
+      ]
     end
 
     if windows?
@@ -969,7 +975,10 @@ else
     cflags = concat_flags(ENV["CFLAGS"], "-O2", "-U_FORTIFY_SOURCE", "-g")
 
     if darwin? && !cross_build_p
-      recipe.configure_options += ["RANLIB=/usr/bin/ranlib", "AR=/usr/bin/ar"]
+      recipe.configure_options += [
+        "RANLIB=#{ENV.fetch("RANLIB", "/usr/bin/ranlib")}",
+        "AR=#{ENV.fetch("AR", "/usr/bin/ar")}",
+      ]
     end
 
     if windows?
