@@ -195,8 +195,12 @@ def aix?
   RbConfig::CONFIG["target_os"].include?("aix")
 end
 
-def nix?
+def unix?
   !(windows? || solaris? || darwin?)
+end
+
+def nix?
+  ENV.key?("NIX_CC")
 end
 
 def truffle?
@@ -684,7 +688,7 @@ end
 
 # Add SDK-specific include path for macOS and brew versions before v2.2.12 (2020-04-08) [#1851, #1801]
 macos_mojave_sdk_include_path = "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/libxml2"
-if config_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path)
+if config_system_libraries? && darwin? && Dir.exist?(macos_mojave_sdk_include_path) && !nix?
   append_cppflags("-I#{macos_mojave_sdk_include_path}")
 end
 
@@ -803,7 +807,7 @@ else
       end
     end
 
-    unless nix?
+    unless unix?
       libiconv_recipe = process_recipe(
         "libiconv",
         dependencies["libiconv"]["version"],
